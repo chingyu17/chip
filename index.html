@@ -2,15 +2,15 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=100">
-    <title>🥔 Funky Potato Chip</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🥔 真實波浪洋芋片</title>
     <style>
         :root {
-            --chip-color: #f4d03f;
-            --chip-border: #d4ac0d;
+            --chip-light: #f9e79f;
+            --chip-dark: #d4ac0d;
+            --chip-burnt: #9a7d0a;
+            --oil-shine: rgba(255, 255, 255, 0.6);
             --btn-color: #e74c3c;
-            --btn-hover: #c0392b;
-            --bg-color: #2c3e50;
         }
 
         body {
@@ -19,22 +19,21 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background: radial-gradient(circle, #34495e 0%, #1a252f 100%);
+            background: radial-gradient(circle at center, #2c3e50 0%, #000 100%);
             overflow: hidden;
-            font-family: 'Arial', sans-serif;
-            perspective: 1000px;
+            perspective: 1200px;
+            font-family: sans-serif;
         }
 
-        /* 舞台容器 */
         .stage {
             position: relative;
-            width: 300px;
-            height: 300px;
+            width: 350px;
+            height: 350px;
             transform-style: preserve-3d;
-            animation: spin 4s linear infinite;
+            animation: floatAndSpin 6s ease-in-out infinite;
         }
 
-        /* 洋芋片本體 (模擬雙面) */
+        /* 洋芋片本體 */
         .chip {
             position: absolute;
             width: 100%;
@@ -42,103 +41,126 @@
             transform-style: preserve-3d;
         }
 
+        /* 使用 SVG 濾鏡模擬不規則邊緣和皺褶 */
         .face {
             position: absolute;
             width: 100%;
             height: 100%;
-            border-radius: 50%; /* 圓形洋芋片 */
-            background: var(--chip-color);
-            border: 4px solid var(--chip-border);
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.2), 0 0 30px rgba(244, 208, 63, 0.4);
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            /* 不規則形狀：使用 clip-path 或 SVG mask，這裡用 border-radius 組合模擬波浪 */
+            border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+            background: radial-gradient(circle at 30% 30%, var(--chip-light), var(--chip-dark) 60%, var(--chip-burnt) 100%);
+            box-shadow: 
+                inset 0 0 20px rgba(0,0,0,0.3),
+                0 10px 30px rgba(0,0,0,0.5);
             backface-visibility: visible;
-            /* 模擬洋芋片的皺褶紋理 */
-            background-image: 
-                radial-gradient(circle at 30% 30%, rgba(255,255,255,0.4) 0%, transparent 20%),
-                radial-gradient(circle at 70% 70%, rgba(0,0,0,0.1) 0%, transparent 25%);
+            /* 模擬油亮反光 */
+            filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.3));
         }
 
+        /* 正面 */
         .front {
             transform: rotateY(0deg);
+            /* 添加皺褶紋理 */
+            background-image: 
+                radial-gradient(circle at 20% 20%, var(--oil-shine) 0%, transparent 15%),
+                radial-gradient(circle at 80% 60%, var(--oil-shine) 0%, transparent 10%),
+                radial-gradient(circle at 50% 80%, rgba(255,255,255,0.3) 0%, transparent 20%),
+                repeating-radial-gradient(circle at 50% 50%, transparent 0, transparent 10px, rgba(0,0,0,0.05) 10px, rgba(0,0,0,0.05) 12px);
         }
 
+        /* 背面 (顏色稍深，紋理不同) */
         .back {
             transform: rotateY(180deg);
-            background: #e5c335; /* 背面顏色稍暗 */
+            background: radial-gradient(circle at 70% 70%, var(--chip-dark), var(--chip-burnt) 80%);
+            border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; /* 背面形狀微調 */
+            background-image: 
+                radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2) 0%, transparent 15%),
+                repeating-conic-gradient(from 0deg, transparent 0deg, rgba(0,0,0,0.05) 10deg, transparent 20deg);
         }
 
-        /* 裝飾文字 */
-        .logo {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #d35400;
-            text-shadow: 1px 1px 0px rgba(255,255,255,0.5);
-            transform: translateZ(1px); /* 稍微浮起 */
-        }
-
-        /* 按鈕容器 (固定在洋芋片的一個角) */
-        .corner-btn-container {
+        /* 邊緣厚度模擬 (通過偽元素) */
+        .face::before {
+            content: '';
             position: absolute;
-            top: -20px;
-            right: -20px;
-            transform: translateZ(20px); /* 讓按鈕浮在洋芋片前方 */
+            top: -2px; left: -2px; right: -2px; bottom: -2px;
+            border-radius: inherit;
+            background: linear-gradient(135deg, #b7950b, #f1c40f, #b7950b);
+            z-index: -1;
+            opacity: 0.8;
+            filter: blur(1px);
+        }
+
+        /* 按鈕容器 */
+        .btn-wrapper {
+            position: absolute;
+            top: 10%;
+            right: 15%;
+            transform: translateZ(30px); /* 突出於洋芋片表面 */
             transform-style: preserve-3d;
-            /* 讓按鈕始終面向觀眾，不隨洋芋片旋轉（可选，這裡選擇隨洋芋片轉更有感覺） */
-            /* transform: translateZ(20px) rotateY(0deg); */ 
         }
 
         .funky-btn {
-            background: var(--btn-color);
+            background: linear-gradient(to bottom, #ff5252, #d32f2f);
             color: white;
-            border: none;
-            padding: 10px 20px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            border-radius: 20px;
+            border: 2px solid #fff;
+            padding: 8px 16px;
+            font-size: 1rem;
+            font-weight: 900;
+            border-radius: 12px;
             cursor: pointer;
-            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.6);
-            transition: all 0.2s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            position: relative;
-            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            transition: transform 0.1s;
+            font-family: 'Comic Sans MS', cursive, sans-serif; /* 隨意一點的字體 */
         }
 
         .funky-btn:hover {
-            background: var(--btn-hover);
-            transform: scale(1.1);
-            box-shadow: 0 6px 20px rgba(231, 76, 60, 0.8);
+            transform: scale(1.1) rotate(-2deg);
+            box-shadow: 0 6px 15px rgba(255, 82, 82, 0.6);
         }
 
         .funky-btn:active {
             transform: scale(0.95);
         }
 
-        /* 播放中的動畫效果 */
+        /* 播放狀態 */
         .playing .funky-btn {
-            animation: pulse-btn 0.5s infinite alternate;
-            background: #2ecc71; /* 播放時變綠 */
+            animation: bounce 0.5s infinite alternate;
+            background: linear-gradient(to bottom, #69f0ae, #00c853);
         }
 
-        @keyframes spin {
-            0% { transform: rotateX(20deg) rotateY(0deg); }
-            100% { transform: rotateX(20deg) rotateY(360deg); }
+        /* 動畫定義 */
+        @keyframes floatAndSpin {
+            0% {
+                transform: rotateX(15deg) rotateY(0deg) translateY(0px);
+            }
+            25% {
+                transform: rotateX(20deg) rotateY(90deg) translateY(-15px);
+            }
+            50% {
+                transform: rotateX(10deg) rotateY(180deg) translateY(0px);
+            }
+            75% {
+                transform: rotateX(25deg) rotateY(270deg) translateY(15px);
+            }
+            100% {
+                transform: rotateX(15deg) rotateY(360deg) translateY(0px);
+            }
         }
 
-        @keyframes pulse-btn {
-            from { transform: scale(1); }
-            to { transform: scale(1.15); }
+        @keyframes bounce {
+            from { transform: translateY(0) scale(1); }
+            to { transform: translateY(-5px) scale(1.1); }
         }
 
         .status {
             position: absolute;
             bottom: 30px;
-            color: white;
-            font-size: 1.2rem;
-            opacity: 0.8;
+            color: #f1c40f;
+            font-size: 1.1rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
             text-align: center;
+            width: 100%;
         }
     </style>
 </head>
@@ -147,25 +169,18 @@
     <div class="stage" id="chipStage">
         <div class="chip">
             <div class="face front">
-                <div class="logo">CRUNCHY</div>
-                <!-- 按鈕放在右上角 -->
-                <div class="corner-btn-container">
-                    <button class="funky-btn" id="playBtn">FUNKY</button>
+                <div class="btn-wrapper">
+                    <button class="funky-btn" id="playBtn">FUNKY!</button>
                 </div>
             </div>
-            <div class="face back">
-                <div class="logo">CRUNCHY</div>
-            </div>
+            <div class="face back"></div>
         </div>
     </div>
 
-    <div class="status" id="statusText">點擊按鈕播放 Funky Town 🎵</div>
+    <div class="status" id="statusText">點擊按鈕播放音樂 🎵</div>
 
-    <!-- 音樂檔案 (使用公開的 MP3 連結) -->
-    <!-- 注意：如果此連結失效，請替換為有效的 MP3 網址 -->
     <audio id="audioPlayer" loop>
         <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
-        您的瀏覽器不支持音頻元素。
     </audio>
 
     <script>
@@ -175,36 +190,26 @@
         const stage = document.getElementById('chipStage');
         let isPlaying = false;
 
-        // 為了演示，我們使用一首免費的 Funky 風格音樂
-        // 如果你有 Funky Town 的 MP3，請替換 src 屬性
-        // 這裡使用 SoundHelix 的一首節奏感強的曲子作為替代
-        
         playBtn.addEventListener('click', async () => {
             try {
                 if (isPlaying) {
                     audio.pause();
                     isPlaying = false;
-                    playBtn.textContent = "FUNKY";
-                    playBtn.style.background = "var(--btn-color)";
+                    playBtn.textContent = "MUSIC!";
+                    playBtn.style.background = "linear-gradient(to bottom, #ff5252, #d32f2f)";
                     statusText.textContent = "暫停中...";
                     stage.classList.remove('playing');
                 } else {
                     await audio.play();
                     isPlaying = true;
                     playBtn.textContent = "STOP";
-                    playBtn.style.background = "#2ecc71";
-                    statusText.textContent = "🎶 播放中：Funky Vibe! 🎶";
+                    playBtn.style.background = "linear-gradient(to bottom, #69f0ae, #00c853)";
+                    statusText.textContent = "🎶 播放中! 🎶";
                     stage.classList.add('playing');
                 }
             } catch (error) {
-                console.error("播放失敗:", error);
-                statusText.textContent = "點擊頁面任意處再試一次 (瀏覽器限制)";
+                statusText.textContent = "請點擊頁面任意處再試一次";
             }
-        });
-
-        // 如果第一次點擊失敗，提示用戶
-        audio.addEventListener('error', (e) => {
-            statusText.textContent = "音樂載入失敗，請檢查網路或連結。";
         });
     </script>
 </body>
